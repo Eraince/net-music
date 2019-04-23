@@ -1,0 +1,28 @@
+{
+  "name": "musicfinal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "hbs": "^4.0.4",
+    "lowdb": "^1.0.0",
+    "manager": "^1.0.9",
+    "mongodb": "^3.2.3",
+    "mongodb-topology": "0.0.23",
+    "mongoose": "^5.5.2",
+    "path": "^0.12.7",
+    "socket.io": "^2.2.0",
+    "tone": "^13.4.9"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.11"
+  }
+}
