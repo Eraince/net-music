@@ -1,0 +1,51 @@
+<div class="title">
+    <img src="/img/title.png" style="padding-top:3%">
+    <p class="grey" style="margin:0"> a network-based collective band performance</p>
+</div>
+
+<div class="intro">
+    <p>Hello, you can adjust following parameters to controll </p><span id="ins">{{title}}</span>
+
+    <p>Your input will be a part of a collective performance on the central channel.</p>
+</div>
+
+
+
+<form id="music-controls">
+    <div class="osc">
+        <label>OSC</label>
+        <div class="osc-choose">
+            <button class="osc-btn" value="since">sine4</button>
+            <button class="osc-btn" value="square">square</button>
+            <button class="osc-btn" value="triangle">triangle</button>
+            <button class="osc-btn" value="sawtooth">sawtooth</button>
+        </div>
+    </div>
+    <div class="brightness">
+        <label>Brightness</label>
+        <div class="bri-choose">
+            <button class="bri-btn">Bright</button>
+            <button class="bri-btn">Dark</button>
+        </div>
+
+    </div>
+    <div class="sustain">
+        <label>Sustain</label>
+        <input class="s-range" type="range" min="0.05" max="8" value="1" />
+    </div>
+
+    <div class="control">
+        <button id="playbtn">Play</button>
+        <button id="return">Menu</button>
+    </div>
+
+
+</form>
+<div class="instruction">
+    <p style="padding-top:5%">Unmute your device. Press PLAY to start your music. Press Menu to try other
+        instruments.</p>
+</div>
+
+<div class="wave">
+    <img src="/img/wave.png" style="width:100%">
+</div>

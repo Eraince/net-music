@@ -1,22 +1,49 @@
 (function() {
   // boolean
   let totalPlay = false;
-  let bassPlay = false;
+  var playing = false;
+  var osc = "sine";
+  var sustain = 0.5;
+  var brightness = "lowpass";
+
+  const homeURL = "http://192.168.0.143:3000";
+  const hotURL = "http://172.20.10.11:3000";
+  const schoolURL = "http://149.31.124.156:3000";
+  fetch(homeURL + "/faParam", {
+    method: "GET"
+  })
+    .then(function(response) {
+      response.json().then(data => {
+        if (data.error) {
+          console.log(data.error);
+        } else {
+          osc = data.osc;
+          brightness = data.brightness;
+          sustain = data.sustain;
+        }
+      });
+    })
+    .catch(error => console.error("Error:", error));
 
   const socket = io();
 
   // dom elements to animate
 
-  const $bassBtn = document.getElementById("bass-btn");
-  const quitBtn = document.getElementById("quit");
+  const playBtn = document.getElementById("playbtn");
+  const returnBtn = document.getElementById("return");
+  const oscBtns = document.querySelectorAll(".osc-btn");
+  const briBtns = document.querySelectorAll(".bri-btn");
+  const sRange = document.querySelector(".s-range");
 
-  // const $bpmRange = document.getElementById("bpm-range");
-  // const $swingRange = document.getElementById("swing-range");
-  // const $filterRange = document.getElementById("filter-range");
-
-  // let bpm = $bpmRange.value;
-  // let swing = $swingRange.value;
-  // let filter = $filterRange.value;
+  function sendUpdate() {
+    socket.emit("play", {
+      name: "banfa",
+      playing,
+      osc,
+      sustain,
+      brightness
+    });
+  }
 
   /*
    * Effects
@@ -156,20 +183,20 @@
   const bassSynth = new Tone.MonoSynth({
     volume: -6,
     oscillator: {
-      type: "fmsquare5",
+      type: osc,
       modulationType: "triangle",
       modulationIndex: 2,
       harmonicity: 0.501
     },
     filter: {
       Q: 1,
-      type: "lowpass",
+      type: brightness,
       rolloff: -24
     },
     envelope: {
       attack: 0.01,
       decay: 0.1,
-      sustain: 0.4,
+      sustain: sustain,
       release: 2
     },
     filterEnvelope: {
@@ -198,7 +225,7 @@
    * Tone Transport
    * set the beats per minute, volume, swing feel etc...
    */
-  Tone.Transport.bpm.value = 60;
+  Tone.Transport.bpm.value = 40;
   Tone.Transport.swing = 0;
   Tone.Transport.swingSubdivision = "16n";
   Tone.Transport.loopStart = 0;
@@ -207,34 +234,58 @@
    * Play Controls
    */
 
-  $bassBtn.addEventListener("click", e => {
+  oscBtns.forEach(function(btn) {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      updateActive(e.target, "osc-btn");
+      osc = e.target.innerText;
+      bassSynth.oscillator.type = osc;
+    });
+  });
+
+  briBtns.forEach(function(btn) {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      updateActive(e.target, "bri-btn");
+      var choice = e.target.innerText;
+      choice == "Bright" ? (brightness = "highpass") : (brightness = "lowpass");
+      bassSynth.filter.type = brightness;
+    });
+  });
+
+  sRange.addEventListener("input", function() {
+    sustain = sRange.value;
+    bassSynth.envelope.sustain = sustain;
+  });
+
+  playBtn.addEventListener("click", e => {
     e.preventDefault();
     if (!totalPlay) {
+      playing = true;
       totalPlay = true;
+      bassPart.start();
+      playBtn.innerText = "update";
       Tone.Master.mute = false;
       Tone.Transport.start("+0.1");
       Tone.context.resume();
     }
-    if (!bassPlay) {
-      bassPlay = true;
-      $bassBtn.value = "stop";
-    } else {
-      bassPlay = false;
-      $bassBtn.value = "play";
-    }
-
-    if (bassPlay) {
-      bassPart.start();
-    } else {
-      bassPart.stop();
-    }
-
-    socket.emit("play", { name: "bass", playing: bassPlay });
+    sendUpdate();
   });
 
-  quitBtn.addEventListener("click", e => {
-    bassPlay = false;
-    socket.emit("play", { name: "bass", playing: bassPlay });
+  returnBtn.addEventListener("click", e => {
+    e.preventDefault();
+    playing = false;
+    sendUpdate();
     window.location = "/";
   });
 })();
+
+function updateActive(target, typeName) {
+  var elems = document.querySelectorAll(".active");
+  [].forEach.call(elems, function(el) {
+    if (el.classList.contains(typeName)) {
+      el.classList.remove("active");
+    }
+  });
+  target.classList.add("active");
+}

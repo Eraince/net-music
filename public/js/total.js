@@ -1,21 +1,15 @@
 (function() {
   // boolean
   let totalPlay = false;
-  let pizzPlay = false;
-  let bassPlay = false;
-  let snarePlay = false;
-  let kickPlay = false;
-  let highHatPlay = false;
+  let bandoPlay = false;
+  let banrePlay = false;
+  let banmiPlay = false;
+  let banfaPlay = false;
+  let bansoPlay = false;
+  let banlaPlay = false;
 
   const socket = io();
   const $playBtn = document.getElementById("play-btn");
-  // const $bpmRange = document.getElementById("bpm-range");
-  // const $swingRange = document.getElementById("swing-range");
-  // const $filterRange = document.getElementById("filter-range");
-
-  // let bpm = $bpmRange.value;
-  // let swing = $swingRange.value;
-  // let filter = $filterRange.value;
 
   /*
    * Effects
@@ -208,13 +202,15 @@
   // Kick notes array
   const kickNotes = ["C3", null, null, null, ["C3", "C3"], null, null, null];
 
+  const sNotes = [["D5"], [null], [null], [null]];
+
   /*
    * Bass
    */
   const bassSynth = new Tone.MonoSynth({
     volume: -6,
     oscillator: {
-      type: "fmsquare5",
+      type: "sine8",
       modulationType: "triangle",
       modulationIndex: 2,
       harmonicity: 0.501
@@ -263,7 +259,7 @@
   const pizzSynth = new Tone.MonoSynth({
     volume: 0,
     oscillator: {
-      type: "sawtooth4"
+      type: "sawtooth"
     },
     filter: {
       Q: 3,
@@ -273,7 +269,7 @@
     envelope: {
       attack: 0.01,
       decay: 0.3,
-      sustain: 0.3,
+      sustain: 0.5,
       release: 0.9
     },
     filterEnvelope: {
@@ -307,66 +303,49 @@
   );
 
   // High-hat Sequence
-  const highHatPart = new Tone.Sequence(
+  var highHatPart = new Tone.Sequence(
     function(time, note) {
-      drums505.triggerAttackRelease(note, "4n", time);
+      drums505.triggerAttackRelease("A2", "4n", time);
     },
     highHatNotes,
-    "16n"
+    "8n"
   );
 
   // Snare Sequence
-  const snarePart = new Tone.Sequence(
+  var snarePart = new Tone.Sequence(
     function(time, note) {
-      drums505.triggerAttackRelease("D4", "4n", time);
+      drums505.triggerAttackRelease("C2", "4n", time);
     },
     ["D4"],
-    "4n"
-  );
-
-  // Kick Sequence
-  const kickPart = new Tone.Sequence(
-    function(time, note) {
-      // changeColor(kickBox);
-      drums505.triggerAttackRelease("C3", "4n", time);
-    },
-    kickNotes,
     "16n"
   );
 
-  var instruments = [
-    { name: "pizz", playing: pizzPart, playPart: pizzPart },
-    { name: "bass", playing: bassPlay, playPart: bassPart },
-    {
-      name: "snare",
-      playing: snarePlay,
-      playPart: snarePart
+  var snarePart2 = new Tone.Sequence(
+    function(time, note) {
+      drums505.triggerAttackRelease("D2", "8n", time);
     },
-    {
-      name: "kick",
-      playing: kickPlay,
-      playPart: kickPart
+    sNotes,
+    "8n"
+  );
+
+  // Kick Sequence
+  var kickPart = new Tone.Sequence(
+    function(time, note) {
+      // changeColor(kickBox);
+      drums505.triggerAttackRelease("G2", "4n", time);
     },
-    {
-      name: "highHat",
-      playing: highHatPlay,
-      playPart: highHatPart
-    }
-  ];
+    kickNotes,
+    "26n"
+  );
 
   // Route everything through the filter & compressor before playing
   Tone.Master.chain(lowBump, masterCompressor);
 
   /*
    * Tone Transport
-   * set the beats per minute, volume, swing feel etc...
    */
-  Tone.Transport.bpm.value = 50;
-  Tone.Transport.swing = 0;
-  Tone.Transport.swingSubdivision = "16n";
+  Tone.Transport.bpm.value = 40;
   Tone.Transport.loopStart = 0;
-  pizzSynth.filterEnvelope.baseFrequency = 800;
-
   /*
    * Play Controls
    */
@@ -381,20 +360,124 @@
     }
   });
 
+  var instruments = {
+    bando: {
+      name: "bando",
+      playing: bandoPlay,
+      playPart: pizzPart,
+      osc: "sine",
+      sustain: 0.5,
+      brightness: "lowpass",
+      synth: pizzSynth
+    },
+    banre: {
+      name: "banre",
+      playing: banrePlay,
+      playPart: kickPart,
+      brightness: "G2",
+      speed: "16n"
+    },
+    banmi: {
+      name: "banmi",
+      playing: banmiPlay,
+      playPart: highHatPart,
+      brightness: "A2",
+      speed: "8n"
+    },
+    banfa: {
+      name: "banfa",
+      playing: banfaPlay,
+      playPart: bassPart,
+      osc: "sine",
+      sustain: 0.5,
+      brightness: "lowpass",
+      synth: bassSynth
+    },
+    banso: {
+      name: "banso",
+      playing: bansoPlay,
+      playPart: snarePart,
+      brightness: "C2",
+      speed: "16n"
+    },
+    banla: {
+      name: "banla",
+      playing: banlaPlay,
+      playPart: snarePart2,
+      brightness: "D2",
+      speed: "8n"
+    }
+  };
+
   socket.on("playChange", playStatus => {
-    instruments.forEach(instrument => {
-      if (instrument.name == playStatus.name) {
+    if (playStatus.name == "bando") {
+      var instrument = instruments.bando;
+      instrument.osc = playStatus.osc;
+      instrument.synth.oscillator.type = instrument.osc;
+      instrument.sustain = playStatus.sustain;
+      instrument.synth.envelope.sustain = instrument.sustain;
+      instrument.brightness = playStatus.brightness;
+      instrument.synth.filter.type = instrument.brightness;
+
+      if (playStatus.playing != instrument.playing) {
         if (playStatus.playing) {
+          instrument.playPart.start();
           instrument.playing = true;
         } else {
+          instrument.playPart.stop();
           instrument.playing = false;
         }
-        if (instrument.playing) {
+      }
+    }
+
+    if (playStatus.name == "banfa") {
+      var instrument = instruments.banfa;
+      instrument.osc = playStatus.osc;
+      instrument.synth.oscillator.type = instrument.osc;
+      instrument.sustain = playStatus.sustain;
+      instrument.synth.envelope.sustain = instrument.sustain;
+      instrument.brightness = playStatus.brightness;
+      instrument.synth.filter.type = instrument.brightness;
+      if (playStatus.playing != instrument.playing) {
+        if (playStatus.playing) {
           instrument.playPart.start();
+          instrument.playing = true;
         } else {
           instrument.playPart.stop();
+          instrument.playing = false;
         }
       }
-    });
+    }
+
+    if (playStatus.name == "banre") {
+      var instrument = instruments.banre;
+      instrument.brightness = playStatus.brightness;
+      instrument.speed = playStatus.speed;
+      instrument.playPart.stop();
+      instrument.playPart = new Tone.Sequence(
+        function(time, note) {
+          // changeColor(kickBox);
+          drums505.triggerAttackRelease(
+            instrument.brightness,
+            instrument.speed,
+            time
+          );
+        },
+        kickNotes,
+        instrument.speed
+      );
+      instrument.playPart.start();
+
+      if (playStatus.playing != instrument.playing) {
+        if (playStatus.playing) {
+          instrument.playPart.start();
+          instrument.playing = true;
+        } else {
+          instrument.playPart.stop();
+          instrument.playing = false;
+          console.log("stop");
+        }
+      }
+    }
   });
 })();

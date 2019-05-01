@@ -1,0 +1,33 @@
+button {
+  color: #ff9999;
+  border-color: #ff9999;
+}
+
+#music-controls {
+  color: #ff9999;
+}
+
+.active {
+  background: #663d3d;
+}
+
+#ins {
+  color: #ff9999;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  border: 1px solid #ff9999;
+  background: #ff9999;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #ff9999;
+}
+
+input[type="range"]:focus::-webkit-slider-runnable-track {
+  background: #ff9999;
+}
+
+input[type="range"]::-moz-range-track {
+  background: #ff9999;
+}

@@ -1,21 +1,58 @@
 (function() {
   // boolean
   let totalPlay = false;
-  let highHatPlay = false;
+  let playing = false;
+  let brightness = "A2";
+  let speed = "8n";
 
+  const homeURL = "http://192.168.0.143:3000";
+  const hotURL = "http://172.20.10.11:3000";
+  const schoolURL = "http://149.31.124.227:3000";
+  fetch(schoolURL + "/miParam", {
+    method: "GET"
+  })
+    .then(function(response) {
+      response.json().then(data => {
+        if (data.error) {
+          console.log(data.error);
+        } else {
+          brightness = data.brightness;
+          speed = data.speed;
+          highHatPart.stop();
+          updateSequence();
+          highHatPart.start();
+        }
+      });
+    })
+    .catch(error => console.error("Error:", error));
   const socket = io();
 
   // dom elements to animate
 
-  const $highHatBtn = document.getElementById("highHat-btn");
-  const quitBtn = document.getElementById("quit");
-  // const $bpmRange = document.getElementById("bpm-range");
-  // const $swingRange = document.getElementById("swing-range");
-  // const $filterRange = document.getElementById("filter-range");
+  const playBtn = document.getElementById("playbtn");
+  const returnBtn = document.getElementById("return");
+  const speedBtns = document.querySelectorAll(".speed-btn");
+  const bRange = document.querySelector(".b-range");
 
-  // let bpm = $bpmRange.value;
-  // let swing = $swingRange.value;
-  // let filter = $filterRange.value;
+  function sendUpdate() {
+    socket.emit("play", {
+      name: "banmi",
+      playing,
+      brightness,
+      speed
+    });
+  }
+
+  function updateSequence() {
+    highHatPart = new Tone.Sequence(
+      function(time, note) {
+        // changeColor(kickBox);
+        drums505.triggerAttackRelease(brightness, speed, time);
+      },
+      highHatNotes,
+      speed
+    );
+  }
 
   /*
    * Effects
@@ -115,12 +152,12 @@
     }
   ).chain(autoWah, phaser);
   // High-hat Sequence
-  const highHatPart = new Tone.Sequence(
+  var highHatPart = new Tone.Sequence(
     function(time, note) {
-      drums505.triggerAttackRelease(note, "4n", time);
+      drums505.triggerAttackRelease(brightness, speed, time);
     },
     highHatNotes,
-    "16n"
+    speed
   );
 
   // Route everything through the filter & compressor before playing
@@ -130,42 +167,59 @@
    * Tone Transport
    * set the beats per minute, volume, swing feel etc...
    */
-  Tone.Transport.bpm.value = 50;
-  Tone.Transport.swing = 0;
-  Tone.Transport.swingSubdivision = "16n";
+  Tone.Transport.bpm.value = 40;
   Tone.Transport.loopStart = 0;
 
   /*
    * Play Controls
    */
 
-  $highHatBtn.addEventListener("click", e => {
+  bRange.addEventListener("input", function() {
+    brightness = bRange.value;
+    brightness = "A" + brightness;
+    updateSequence();
+  });
+
+  speedBtns.forEach(function(btn) {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      updateActive(e.target, "speed-btn");
+      var choice = e.target.innerText;
+      choice == "Fast" ? (speed = "16n") : (speed = "8n");
+      highHatPart.stop();
+      updateSequence();
+      highHatPart.start();
+    });
+  });
+
+  playBtn.addEventListener("click", e => {
     e.preventDefault();
     if (!totalPlay) {
+      playing = true;
       totalPlay = true;
+      highHatPart.start();
+      playBtn.innerText = "update";
       Tone.Master.mute = false;
       Tone.Transport.start("+0.1");
       Tone.context.resume();
     }
-    if (!highHatPlay) {
-      highHatPlay = true;
-      $highHatBtn.value = "stop";
-    } else {
-      highHatPlay = false;
-      $highHatBtn.value = "start";
-    }
-
-    if (highHatPlay) {
-      highHatPart.start();
-    } else {
-      highHatPart.stop();
-    }
-    socket.emit("play", { name: "highHat", playing: highHatPlay });
+    sendUpdate();
   });
 
-  quitBtn.addEventListener("click", e => {
-    highHatPlay = false;
-    socket.emit("play", { name: "highHat", playing: highHatPlay });
+  returnBtn.addEventListener("click", e => {
+    e.preventDefault();
+    playing = false;
+    sendUpdate();
     window.location = "/";
   });
 })();
+
+function updateActive(target, typeName) {
+  var elems = document.querySelectorAll(".active");
+  [].forEach.call(elems, function(el) {
+    if (el.classList.contains(typeName)) {
+      el.classList.remove("active");
+    }
+  });
+  target.classList.add("active");
+}

@@ -1,14 +1,49 @@
 (function() {
   // boolean
-
-  let pizzPlay = false;
   let totalPlay = false;
+  var playing = false;
+  var osc = "sine";
+  var sustain = 0.5;
+  var brightness = "lowpass";
+
+  const homeURL = "http://192.168.0.143:3000";
+  const hotURL = "http://172.20.10.11:3000";
+  const schoolURL = "http://149.31.124.156:3000";
+  fetch(homeURL + "/doParam", {
+    method: "GET"
+  })
+    .then(function(response) {
+      response.json().then(data => {
+        if (data.error) {
+          console.log(data.error);
+        } else {
+          osc = data.osc;
+          brightness = data.brightness;
+          sustain = data.sustain;
+        }
+      });
+    })
+    .catch(error => console.error("Error:", error));
+
   const socket = io();
 
   // dom elements to animate
 
-  const $pizzBtn = document.getElementById("pizz-btn");
-  const quitBtn = document.getElementById("quit");
+  const playBtn = document.getElementById("playbtn");
+  const returnBtn = document.getElementById("return");
+  const oscBtns = document.querySelectorAll(".osc-btn");
+  const briBtns = document.querySelectorAll(".bri-btn");
+  const sRange = document.querySelector(".s-range");
+
+  function sendUpdate() {
+    socket.emit("play", {
+      name: "bando",
+      playing,
+      osc,
+      sustain,
+      brightness
+    });
+  }
 
   /*
    * Effects
@@ -115,18 +150,18 @@
   const pizzSynth = new Tone.MonoSynth({
     volume: 0,
     oscillator: {
-      type: "triangle8"
+      type: osc
     },
     filter: {
       Q: 3,
-      type: "highpass",
+      type: brightness,
       rolloff: -12
     },
     envelope: {
       attack: 0.01,
       decay: 0.3,
-      sustain: 0.3,
-      release: 0.9
+      sustain: sustain,
+      release: 0.2
     },
     filterEnvelope: {
       attack: 0.01,
@@ -151,46 +186,69 @@
 
   // Route everything through the filter & compressor before playing
   Tone.Master.chain(lowBump, masterCompressor);
-
   /*
    * Tone Transport
    * set the beats per minute, volume, swing feel etc...
    */
   Tone.Transport.bpm.value = 40;
-  Tone.Transport.swing = 0;
-  Tone.Transport.swingSubdivision = "16n";
   Tone.Transport.loopStart = 0;
-  pizzSynth.filterEnvelope.baseFrequency = 800;
 
   /*
    * Play Controls
    */
 
-  $pizzBtn.addEventListener("click", e => {
+  oscBtns.forEach(function(btn) {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      updateActive(e.target, "osc-btn");
+      osc = e.target.innerText;
+      pizzSynth.oscillator.type = osc;
+    });
+  });
+
+  briBtns.forEach(function(btn) {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      updateActive(e.target, "bri-btn");
+      var choice = e.target.innerText;
+      choice == "Bright" ? (brightness = "highpass") : (brightness = "lowpass");
+      pizzSynth.filter.type = brightness;
+    });
+  });
+
+  sRange.addEventListener("input", function() {
+    sustain = sRange.value;
+    pizzSynth.envelope.sustain = sustain;
+  });
+
+  playBtn.addEventListener("click", e => {
     e.preventDefault();
     if (!totalPlay) {
+      playing = true;
       totalPlay = true;
+      pizzPart.start();
+      playBtn.innerText = "update";
       Tone.Master.mute = false;
       Tone.Transport.start("+0.1");
       Tone.context.resume();
     }
-    if (!pizzPlay) {
-      pizzPlay = true;
-      $pizzBtn.value = "stop";
-    } else {
-      pizzPlay = false;
-      $pizzBtn.value = "play";
-    }
-    if (pizzPlay) {
-      pizzPart.start();
-    } else {
-      pizzPart.stop();
-    }
-    socket.emit("play", { name: "pizz", playing: pizzPlay });
+    sendUpdate();
   });
-  quitBtn.addEventListener("click", e => {
-    bassPlay = false;
-    socket.emit("play", { name: "pizz", playing: pizzPlay });
+
+  returnBtn.addEventListener("click", e => {
+    e.preventDefault();
+    playing = false;
+    sendUpdate();
     window.location = "/";
   });
 })();
+
+function updateActive(target, typeName) {
+  var elems = document.querySelectorAll(".active");
+  [].forEach.call(elems, function(el) {
+    if (el.classList.contains(typeName)) {
+      el.classList.remove("active");
+    }
+  });
+  target.classList.add("active");
+}

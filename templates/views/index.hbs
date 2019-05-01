@@ -5,10 +5,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Band of Everyone</title>
+    <title>BANDOLLECTIVE</title>
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet" />
 
     <link rel="stylesheet" href="/css/style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
     <script src="/js/index.js"></script>
 
@@ -16,16 +17,30 @@
 
 <body>
 
-    <h1>A Band of Everyone</h1>
-    <p>Click PLAY to play sound.</p>
+    <div class="title">
+        <img src="/img/title.png" style="padding-top:3%">
+        <p class="grey" style="margin:0"> a network-based collective band performance</p>
+    </div>
 
-    <form id="music-controls" class="music-controls">
+
+    <div class="intro">
+        <p>Join by choosing any instrument below:</p>
+        <p>(each instrument can be played by one at a time)</p>
+    </div>
+
+    <form id="music-controls">
+
+
+
 
     </form>
-    <section id="stage">
-    </section>
+    <div class="instruction">
+        <p style="padding-top:5%">If the instrument is 'In performance', please wait.</p>
+    </div>
 
-
+    <div class="wave">
+        <img src="/img/wave.png" style="width:100%">
+    </div>
 
 
     <script src="/socket.io/socket.io.js"></script>

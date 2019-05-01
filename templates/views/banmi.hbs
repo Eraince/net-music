@@ -8,37 +8,16 @@
     <title>BANDOLLECTIVE</title>
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet" />
 
-    <link rel="stylesheet" href="/css/total.css" />
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" href="/css/double.css" />
+    <link rel="stylesheet" href="/css/banmi.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
-    <script src="/js/total.js"></script>
 
 </head>
 
 <body>
-
-    <div class="title">
-        <img src="/img/title.png" style="padding-top:3%">
-        <p class="grey" style="margin:0"> a network-based collective band performance</p>
-    </div>
-
-
-
-    <div id="canvas">
-
-    </div>
-    <div id="playControl">
-        <button id="play-btn">Start</button>
-    </div>
-
-
-
-
-
-
+    {{>double}}
     <script src="/socket.io/socket.io.js"></script>
-
-
+    <script src="/js/banmi.js"></script>
 </body>
 
 </html>

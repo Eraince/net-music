@@ -8,6 +8,18 @@ const Instrument = mongoose.model("Instrument", {
   playing: {
     type: Boolean,
     required: true
+  },
+  osc: {
+    type: String
+  },
+  sustain: {
+    type: Number
+  },
+  brightness: {
+    type: String
+  },
+  speed: {
+    type: String
   }
 });
 

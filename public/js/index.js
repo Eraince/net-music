@@ -1,8 +1,8 @@
 (function() {
   const homeURL = "http://192.168.0.143:3000";
   const hotURL = "http://172.20.10.11:3000";
-  const schoolURL = "http://149.31.124.174:3000";
-  fetch(homeURL + "/status", {
+  const schoolURL = "http://149.31.124.227:3000";
+  fetch(schoolURL + "/status", {
     method: "GET"
   })
     .then(function(response) {
@@ -10,33 +10,31 @@
         if (data.error) {
           console.log(data.error);
         } else {
-          createBall(data.pizz, "pizz");
-          createBall(data.bass, "bass");
-          createBall(data.snare, "snare");
-          createBall(data.kick, "kick");
-          createBall(data.highHat, "highHat");
+          createButton(data.bando, "bando");
+          createButton(data.banre, "banre");
+          createButton(data.banmi, "banmi");
+          createButton(data.banfa, "banfa");
+          createButton(data.banso, "banso");
+          createButton(data.banla, "banla");
         }
       });
     })
     .catch(error => console.error("Error:", error));
 })();
 
-const createBall = (status, name) => {
+const createButton = (status, name) => {
   var parentBox = document.createElement("div");
-  parentBox.style.margin = "3%";
+  parentBox.className = "ins-choose";
   if (status) {
-    parentBox.className = "ball bubble";
+    parentBox.id = name + "-filled";
   } else {
-    parentBox.className = "ball";
+    parentBox.id = name;
   }
   var childBox = document.createElement("div");
-  childBox.style.textAlign = "center";
-  childBox.style.paddingTop = "50%";
-  childBox.style.fontSize = "1.5em";
+  childBox.className = "ins-button";
   var linkBox = document.createElement("a");
-  linkBox.style.marginTop = "50%";
   if (status) {
-    linkBox.innerHTML = "In Use";
+    linkBox.innerHTML = "In Performance";
     linkBox.href = "/";
   } else {
     linkBox.innerHTML = name;
@@ -44,6 +42,6 @@ const createBall = (status, name) => {
   }
   childBox.append(linkBox);
   parentBox.append(childBox);
-  var stage = document.getElementById("stage");
-  stage.append(parentBox);
+  var controls = document.getElementById("music-controls");
+  controls.append(parentBox);
 };
