@@ -7,8 +7,8 @@
 
   const homeURL = "http://192.168.0.143:3000";
   const hotURL = "http://172.20.10.11:3000";
-  const schoolURL = "http://149.31.124.227:3000";
-  fetch(schoolURL + "/miParam", {
+  const schoolURL = "http://149.31.124.44:3000";
+  fetch(hotURL + "/miParam", {
     method: "GET"
   })
     .then(function(response) {
@@ -170,7 +170,7 @@
       e.preventDefault();
       updateActive(e.target, "speed-btn");
       var choice = e.target.innerText;
-      choice == "Fast" ? (speed = "32n") : (speed = "16n");
+      choice == "Fast" ? (speed = "16n") : (speed = "8n");
       snarePart.stop();
       updateSequence();
       snarePart.start();

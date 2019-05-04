@@ -1,8 +1,8 @@
 (function() {
   const homeURL = "http://192.168.0.143:3000";
   const hotURL = "http://172.20.10.11:3000";
-  const schoolURL = "http://149.31.124.227:3000";
-  fetch(schoolURL + "/status", {
+  const schoolURL = "http://149.31.124.44:3000";
+  fetch(hotURL + "/status", {
     method: "GET"
   })
     .then(function(response) {

@@ -423,9 +423,11 @@
         if (playStatus.playing) {
           instrument.playPart.start();
           instrument.playing = true;
+          waves[0].amplitude = 70;
         } else {
           instrument.playPart.stop();
           instrument.playing = false;
+          waves[0].amplitude = 0;
         }
       }
     }
@@ -442,9 +444,11 @@
         if (playStatus.playing) {
           instrument.playPart.start();
           instrument.playing = true;
+          waves[3].amplitude = 50;
         } else {
           instrument.playPart.stop();
           instrument.playing = false;
+          waves[3].amplitude = 0;
         }
       }
     }
@@ -456,7 +460,6 @@
       instrument.playPart.stop();
       instrument.playPart = new Tone.Sequence(
         function(time, note) {
-          // changeColor(kickBox);
           drums505.triggerAttackRelease(
             instrument.brightness,
             instrument.speed,
@@ -472,12 +475,239 @@
         if (playStatus.playing) {
           instrument.playPart.start();
           instrument.playing = true;
+          waves[1].amplitude = 30;
         } else {
           instrument.playPart.stop();
           instrument.playing = false;
-          console.log("stop");
+          waves[1].amplitude = 0;
+        }
+      }
+    }
+
+    if (playStatus.name == "banmi") {
+      var instrument = instruments.banmi;
+      instrument.brightness = playStatus.brightness;
+      instrument.speed = playStatus.speed;
+      instrument.playPart.stop();
+      instrument.playPart = new Tone.Sequence(
+        function(time, note) {
+          drums505.triggerAttackRelease(
+            instrument.brightness,
+            instrument.speed,
+            time
+          );
+        },
+        highHatNotes,
+        instrument.speed
+      );
+      instrument.playPart.start();
+
+      if (playStatus.playing != instrument.playing) {
+        if (playStatus.playing) {
+          instrument.playPart.start();
+          instrument.playing = true;
+          waves[2].amplitude = 90;
+        } else {
+          instrument.playPart.stop();
+          instrument.playing = false;
+          waves[2].amplitude = 0;
+        }
+      }
+    }
+
+    if (playStatus.name == "banso") {
+      var instrument = instruments.banso;
+      instrument.brightness = playStatus.brightness;
+      instrument.speed = playStatus.speed;
+      instrument.playPart.stop();
+      instrument.playPart = new Tone.Sequence(
+        function(time, note) {
+          drums505.triggerAttackRelease(
+            instrument.brightness,
+            instrument.speed,
+            time
+          );
+        },
+        instrument.brightness,
+        instrument.speed
+      );
+      instrument.playPart.start();
+
+      if (playStatus.playing != instrument.playing) {
+        if (playStatus.playing) {
+          instrument.playPart.start();
+          instrument.playing = true;
+          waves[4].amplitude = 70;
+        } else {
+          instrument.playPart.stop();
+          instrument.playing = false;
+          waves[4].amplitude = 0;
+        }
+      }
+    }
+    if (playStatus.name == "banla") {
+      var instrument = instruments.banla;
+      instrument.brightness = playStatus.brightness;
+      instrument.speed = playStatus.speed;
+      instrument.playPart.stop();
+      instrument.playPart = new Tone.Sequence(
+        function(time, note) {
+          drums505.triggerAttackRelease(
+            instrument.brightness,
+            instrument.speed,
+            time
+          );
+        },
+        sNotes,
+        instrument.speed
+      );
+      instrument.playPart.start();
+
+      if (playStatus.playing != instrument.playing) {
+        if (playStatus.playing) {
+          instrument.playPart.start();
+          instrument.playing = true;
+          waves[5].amplitude = 80;
+        } else {
+          instrument.playPart.stop();
+          instrument.playing = false;
+          waves[5].amplitude = 0;
         }
       }
     }
   });
 })();
+
+// ----------------------canvas drawing--------------------------------------
+
+const canvas = document.getElementById("canvas");
+
+var waves = [
+  {
+    xspacing: 3,
+    theta: 0.2,
+    amplitude: 0,
+    period: 400,
+    yvalue: [],
+    dx: 0,
+    color: { r: 153, g: 153, b: 255 },
+    speed: 0.1,
+    offset: -250
+  },
+  {
+    xspacing: 8,
+    theta: 0.2,
+    amplitude: 0,
+    period: 200,
+    yvalue: [],
+    dx: 0,
+    color: { r: 255, g: 153, b: 255 },
+    speed: 0.2,
+    offset: -190
+  },
+  {
+    xspacing: 8,
+    theta: 0.2,
+    amplitude: 0,
+    period: 200,
+    yvalue: [],
+    dx: 0,
+    color: { r: 255, g: 153, b: 153 },
+    speed: 0.15,
+    offset: -100
+  },
+  {
+    xspacing: 8,
+    theta: 0.2,
+    amplitude: 0,
+    period: 200,
+    yvalue: [],
+    dx: 0,
+    color: { r: 255, g: 204, b: 153 },
+    speed: 0.21,
+    offset: 0
+  },
+  {
+    xspacing: 8,
+    theta: 0.2,
+    amplitude: 0,
+    period: 200,
+    yvalue: [],
+    dx: 0,
+    color: { r: 205, g: 255, b: 153 },
+    speed: 0.17,
+    offset: 60
+  },
+  {
+    xspacing: 8,
+    theta: 0.2,
+    amplitude: 0,
+    period: 200,
+    yvalue: [],
+    dx: 0,
+    color: { r: 153, g: 255, b: 238 },
+    speed: 0.11,
+    offset: 120
+  }
+];
+let img;
+let qrcode;
+let myFont;
+
+function preload() {
+  img = loadImage("/img/Bandollective_logo.png");
+  myFont = loadFont("font/Montserrat-Bold.ttf");
+  // qrcode = loadImage("/img/qrcode-hotspot.png");
+}
+
+function setup() {
+  var drawing = createCanvas(innerWidth, innerHeight);
+  drawing.parent("canvas");
+  waves.forEach(wave => {
+    w = width;
+    wave.dx = (TWO_PI / wave.period) * wave.xspacing;
+    wave.yvalues = new Array(floor(w / wave.xspacing));
+  });
+}
+
+function draw() {
+  background(26, 26, 26);
+  image(img, width / 2 - 200, 30, 400, 125);
+  // image(qrcode, width / 2 - 100, 710, 200, 200);
+  fill(255);
+  textSize(32);
+  text(
+    "Join this performance by scanning the QR code with your phone.",
+    width / 3 - 120,
+    800
+  );
+  waves.forEach(wave => {
+    calcWave(wave);
+    renderWave(wave);
+  });
+}
+
+function calcWave(wave) {
+  // Increment theta (try different values for
+  // 'angular velocity' here)
+  wave.theta += wave.speed;
+
+  let x = wave.theta;
+  for (let i = 0; i < wave.yvalues.length; i++) {
+    // wave.yvalues[i] = sin(x) * wave.amplitude + wave.offset * noise(x);
+    wave.yvalues[i] =
+      sin(x) * wave.amplitude + wave.offset + random(15) * noise(x);
+    x += wave.dx;
+  }
+}
+
+function renderWave(wave) {
+  noStroke();
+  // A simple way to draw the wave with an ellipse at each location
+  for (let x = 0; x < wave.yvalues.length; x++) {
+    fill(wave.color.r, wave.color.g, wave.color.b);
+    ellipse(x * wave.xspacing, height / 2 + wave.yvalues[x], 7, 7);
+  }
+}
+
+// ------------------------------------------------------------

@@ -6,7 +6,7 @@ body {
   max-width: 100vw;
   display: grid;
   grid-template-columns: 10% 1fr 10%;
-  grid-template-rows: 20% 1fr 20%;
+  grid-template-rows: 1fr;
   font-family: "Montserrat", sans-serif;
 }
 
@@ -18,11 +18,9 @@ p {
   margin: 0;
 }
 
-.title {
+#canvas {
+  width: 100%;
+  height: 100%;
   grid-column-start: 2;
   grid-column-end: 3;
-  grid-row-start: 1;
-  grid-row-end: 2;
-  font-size: 0.8em;
-  text-align: center;
 }

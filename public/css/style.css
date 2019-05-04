@@ -3,7 +3,7 @@ body {
   background: #1a1a1a;
   color: white;
   height: 100vh;
-  max-width: 100vw;
+  /* max-width: 100vw; */
   display: grid;
   grid-template-columns: 10% 1fr 10%;
   grid-template-rows: 1fr 10% 35% 12% 22%;
